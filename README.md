@@ -1,2 +1,2 @@
 # tabbie
-Chrome extension for organizing tabs
+Chrome extension for organizing tabs, inspired by OneTab
