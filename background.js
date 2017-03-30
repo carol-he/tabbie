@@ -1,7 +1,50 @@
 // background.js
 
+//opens tabbie page
+function openBackgroundPage() {
+    chrome.tabs.create({ url: chrome.extension.getURL('tabbie.html') });
+}
+
+//context menu
+//logs click
+
+const allTabs = chrome.contextMenus.create({
+    "title": "Save all tabs",
+    "id": "all",
+    "contexts": ["all"]
+});
+
+const currTab = chrome.contextMenus.create({
+    "title": "Save current tab",
+    "id": "current",
+    "contexts": ["all"]
+});
+
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+  console.log("info: ", info);
+  if(info.menuItemId === "all"){
+    chrome.tabs.query({ currentWindow: true, active: false }, function (tabs) {
+      console.log(tabs);
+      let ids = [];
+      for(let i = 0; i < tabs.length; i++){
+        ids.push(tabs[i].id);
+      }
+      chrome.tabs.remove(ids, function() { });
+    });
+  }
+  else if(info.menuItemId === "current"){
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+      console.log(tabs[0]);
+      console.log(tabs[0].id);
+      chrome.tabs.remove(tabs[0].id, function() { });
+    });
+  }
+});
+
+console.log("Test: ", allTabs);
+
 // Called when the user clicks on the browser action.
-chrome.browserAction.onClicked.addListener(function(tab) {
+chrome.browserAction.onClicked.addListener(function() {
   // Send a message to the active tab
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     var activeTab = tabs[0];
