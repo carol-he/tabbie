@@ -1,7 +1,10 @@
 // content.js
-//
+/*
+Not really of use in my code, just used to help learn how to make an ext
+*/
 // const bkg = chrome.runtime.getBackgroundPage();
 // bkg.console.log("hello from bg: ", chrome.tabs);
+let storage = chrome.storage.local;
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -13,8 +16,8 @@ chrome.runtime.onMessage.addListener(
       //console.log("tab id:", currentTabID);
 
       // This line is new!
-      //chrome.runtime.sendMessage({"message": "open_new_tab", "url": firstHref});
-      chrome.runtime.sendMessage({"message": "closeAll"});
+      chrome.runtime.sendMessage({"message": "open_new_tab", "url": firstHref});
+      //chrome.runtime.sendMessage({"message": "closeAll"});
       //console.log("CHROME: ", chrome.tabs.getCurrent());
       //console.log(chrome.tabs.query(object queryInfo, function callback));
     }
