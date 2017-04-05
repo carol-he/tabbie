@@ -4,7 +4,8 @@ most of the code for user interactions
 */
 //using storage API: https://developer.chrome.com/extensions/storage
 let storage = chrome.storage.sync;
-
+storage.clear();
+storage.set({'tabGroups': []});
 //context menu - logs click
 const allTabs = chrome.contextMenus.create({
     "title": "Save all tabs",
@@ -33,8 +34,8 @@ const leftOf = chrome.contextMenus.create({
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
   console.log("info: ", info);
   var currentdate = new Date();
-  var datetime = currentdate.getDate() + "/"
-                + (currentdate.getMonth()+1)  + "/"
+  var datetime = (currentdate.getMonth()+1) + "/"
+                + currentdate.getDate()  + "/"
                 + currentdate.getFullYear() + " @ "
                 + currentdate.getHours() + ":"
                 + currentdate.getMinutes() + ":"
@@ -52,10 +53,19 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         }
       }
       chrome.tabs.remove(ids, function() { });
-      storage.set({'tabGroup': closed, 'dateTime': datetime});
-      storage.get(null, function(items) {
-        console.log("FROM ALL: ", items);
-      });
+      if (closed.length > 0) {
+        storage.get(null, function(items) {
+          //create new object with group info
+          tabGroups = items.tabGroups;
+          const newGroup =
+          {
+            'tabGroup': closed,
+            'dateTime': datetime
+          }
+          items.tabGroups.push(newGroup);
+          storage.set({'tabGroups': tabGroups});
+        });
+      }
     });
   }
   else if(info.menuItemId === "pinned"){
@@ -70,14 +80,38 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         }
       }
       chrome.tabs.remove(ids, function() { });
-      storage.set({'tabGroup': closed, 'dateTime': datetime});
+      if (closed.length > 0) {
+        storage.get(null, function(items) {
+          //create new object with group info
+          tabGroups = items.tabGroups;
+          const newGroup =
+          {
+            'tabGroup': closed,
+            'dateTime': datetime
+          }
+          items.tabGroups.push(newGroup);
+          storage.set({'tabGroups': tabGroups});
+        });
+      }
     });
   }
   else if(info.menuItemId === "current"){
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-      if(tabs[i].url !== chrome.extension.getURL('tabbie.html')){
+      if(tabs[0].url !== chrome.extension.getURL('tabbie.html')){
         chrome.tabs.remove(tabs[0].id, function() { });
-        storage.set({'tabGroup': tabs, 'dateTime': datetime});
+        if (closed.length > 0) {
+          storage.get(null, function(items) {
+            //create new object with group info
+            tabGroups = items.tabGroups;
+            const newGroup =
+            {
+              'tabGroup': tabs,
+              'dateTime': datetime
+            }
+            items.tabGroups.push(newGroup);
+            storage.set({'tabGroups': tabGroups});
+          });
+        }
       }
     });
   }
@@ -94,12 +128,22 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         closed.push(tabs[i]);
       }
       chrome.tabs.remove(ids, function() { });
-      storage.set({'tabGroup': closed, 'dateTime': datetime});
+      if (closed.length > 0) {
+        storage.get(null, function(items) {
+          //create new object with group info
+          tabGroups = items.tabGroups;
+          const newGroup =
+          {
+            'tabGroup': closed,
+            'dateTime': datetime
+          }
+          items.tabGroups.push(newGroup);
+          storage.set({'tabGroups': tabGroups});
+        });
+      }
     });
   }
 });
-
-console.log("Test: ", allTabs);
 
 // Called when the user clicks on the browser action.
 chrome.browserAction.onClicked.addListener(function() {
