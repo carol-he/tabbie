@@ -57,7 +57,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         storage.get(null, function(items) {
           //create new object with group info
           tabGroups = items.tabGroups;
-          const newGroup =
+          let newGroup =
           {
             'tabGroup': closed,
             'dateTime': datetime
@@ -84,7 +84,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         storage.get(null, function(items) {
           //create new object with group info
           tabGroups = items.tabGroups;
-          const newGroup =
+          let newGroup =
           {
             'tabGroup': closed,
             'dateTime': datetime
@@ -98,41 +98,42 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
   else if(info.menuItemId === "current"){
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
       if(tabs[0].url !== chrome.extension.getURL('tabbie.html')){
+        let closed = [tabs[0]];
         chrome.tabs.remove(tabs[0].id, function() { });
-        if (closed.length > 0) {
-          storage.get(null, function(items) {
-            //create new object with group info
-            tabGroups = items.tabGroups;
-            const newGroup =
-            {
-              'tabGroup': tabs,
-              'dateTime': datetime
-            }
-            items.tabGroups.push(newGroup);
-            storage.set({'tabGroups': tabGroups});
-          });
-        }
+        storage.get(null, function(items) {
+          //create new object with group info
+          tabGroups = items.tabGroups;
+          let newGroup =
+          {
+            'tabGroup': closed,
+            'dateTime': datetime
+          }
+          items.tabGroups.push(newGroup);
+          storage.set({'tabGroups': tabGroups});
+        });
       }
     });
   }
   else if(info.menuItemId === "left"){
     let activeIndex;
-    chrome.tabs.query({currentWindow: true, active: true }, function(tabs){
+    chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
       activeIndex = tabs[0].index;
     });
     chrome.tabs.query({ currentWindow: true }, function (tabs) {
       let ids = [];
       let closed = [];
       for(let i = 0; i < activeIndex; i++){
-        ids.push(tabs[i].id);
-        closed.push(tabs[i]);
+        if(tabs[i].url !== chrome.extension.getURL('tabbie.html')){
+          ids.push(tabs[i].id);
+          closed.push(tabs[i]);
+        }
       }
       chrome.tabs.remove(ids, function() { });
       if (closed.length > 0) {
         storage.get(null, function(items) {
           //create new object with group info
           tabGroups = items.tabGroups;
-          const newGroup =
+          let newGroup =
           {
             'tabGroup': closed,
             'dateTime': datetime
