@@ -60,8 +60,63 @@ function openTab(evt) {
   });
 }
 
+function saveAll(){
+  event.preventDefault();
+  var currentdate = new Date();
+  var datetime = (currentdate.getMonth()+1) + "/"
+                + currentdate.getDate()  + "/"
+                + currentdate.getFullYear() + " @ "
+                + currentdate.getHours() + ":"
+                + currentdate.getMinutes() + ":"
+                + currentdate.getSeconds();
+  console.log('hi');
+  chrome.tabs.query({ currentWindow: true, active: false }, function (tabs) {
+    let ids = [];
+    let closed = [];
+    for(let i = 0; i < tabs.length; i++){
+      //ensure tabbie doesn't close
+      if(tabs[i].url !== chrome.extension.getURL('tabbie.html')){
+        ids.push(tabs[i].id);
+        closed.push(tabs[i]);
+      }
+    }
+    chrome.tabs.remove(ids, function() { });
+    if (closed.length > 0) {
+      storage.get(null, function(items) {
+        //create new object with group info
+        tabGroups = items.tabGroups;
+        let newGroup =
+        {
+          'tabGroup': closed,
+          'dateTime': datetime
+        }
+        items.tabGroups.push(newGroup);
+        storage.set({'tabGroups': tabGroups});
+      });
+    }
+  });
+}
+function savePinned(){
+  var currentdate = new Date();
+  var datetime = (currentdate.getMonth()+1) + "/"
+                + currentdate.getDate()  + "/"
+                + currentdate.getFullYear() + " @ "
+                + currentdate.getHours() + ":"
+                + currentdate.getMinutes() + ":"
+                + currentdate.getSeconds();
+  event.preventDefault();
+
+}
+function restoreAll(){
+  event.preventDefault();
+
+}
+
 function main(){
   loadTabs();
+  document.querySelector('#saveall').addEventListener('click', saveAll);
+  document.querySelector('#savepinned').addEventListener('click', savePinned);
+  document.querySelector('#restoreall').addEventListener('click', restoreAll);
 }
 
 document.addEventListener('DOMContentLoaded', main);
