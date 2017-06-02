@@ -30,9 +30,10 @@ function loadTabs() {
           tab.appendChild(linkText);
           tab.title = items.tabGroups[i].tabGroup[j].title;
           tab.href = items.tabGroups[i].tabGroup[j].url;
-          tab.groupid = i
+          tab.groupid = i;
           console.log('id: ', tab.id);
-          tab.id = j;
+          tab.id = items.tabGroups[i].tabGroup[j].id;
+          tab.className = "tab";
           tab.addEventListener('click', openTab);
           document.body.appendChild(tab);
           document.body.appendChild(document.createElement("br"));
@@ -44,19 +45,19 @@ function loadTabs() {
 }
 
 function openTab(evt) {
-  chrome.tabs.create(null, null);
-  console.log('evt.target', evt.target);
-  storage.get(null, function(items) {
-    //create new object with group info
-    tabGroups = items.tabGroups;
+  event.preventDefault();
+  chrome.tabs.create({}, function(tab){
 
-    const newGroup =
-    {
-      'tabGroup': closed,
-      'dateTime': datetime
-    }
-    items.tabGroups.push(newGroup);
-    storage.set({'tabGroups': tabGroups});
+  });
+  console.log('evt.target', evt.target);
+  //get the group
+  //remove one in the group
+  // storage.remove(null, function(items){
+  //
+  // });
+  //remove on client
+  $(function() {
+      $(evt.target).empty();
   });
 }
 
@@ -70,17 +71,26 @@ function saveAll(){
                 + currentdate.getMinutes() + ":"
                 + currentdate.getSeconds();
   console.log('hi');
-  chrome.tabs.query({ currentWindow: true, active: false }, function (tabs) {
+  chrome.tabs.query({ currentWindow: true }, function (tabs) {
     let ids = [];
     let closed = [];
+    let exist = 0;
     for(let i = 0; i < tabs.length; i++){
       //ensure tabbie doesn't close
       if(tabs[i].url !== chrome.extension.getURL('tabbie.html')){
         ids.push(tabs[i].id);
         closed.push(tabs[i]);
+      } else {
+        exist = 1;
       }
     }
+    if(exist == 0){
+      chrome.tabs.create({ url: chrome.extension.getURL('tabbie.html'), pinned: true });
+    }
     chrome.tabs.remove(ids, function() { });
+    chrome.tabs.reload();
+    url = "chrome://extensions";
+    chrome.tabs.create({ url: chrome.extension.getURL(url), active: false });
     if (closed.length > 0) {
       storage.get(null, function(items) {
         //create new object with group info

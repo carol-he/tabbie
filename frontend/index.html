@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>tabbie</title>
+    <link rel="stylesheet" href="button.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+    
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+</head>
+    
+
+  
+<body>
+    <div class="wrapper">
+        <div class="toggleWrapper">
+  <input type="checkbox" class="dn" id="dn"/>
+  <label for="dn" class="toggle">
+    <span class="toggle__handler">
+      <span class="crater crater--1"></span>
+      <span class="crater crater--2"></span>
+      <span class="crater crater--3"></span>
+    </span>
+    <span class="star star--1"></span>
+    <span class="star star--2"></span>
+    <span class="star star--3"></span>
+    <span class="star star--4"></span>
+    <span class="star star--5"></span>
+    <span class="star star--6"></span>
+  </label>
+</div>
+    <div class="tabGroup animated fadeInRightBig" id="one">
+    <div class="groupLabel">Mar 15, 2017</div>
+    <div class="tab">1</div>
+    <div class="tab">2</div>
+    <div class="tab">3</div>
+    </div>
+    <div class="tabGroup animated fadeInRightBig" id="two">
+        <div class="groupLabel">Mar 15, 2017</div>
+    <div class="tab">1</div>
+    <div class="tab">2</div>
+    <div class="tab">3</div>
+        <div class="tab">4</div>
+    </div>
+    <div class="tabGroup animated fadeInRightBig" id="three">
+        <div class="groupLabel">Mar 15, 2017</div>
+    <div class="tab">1</div>
+    <div class="tab">2</div>
+    <div class="tab">3</div>
+        <div class="tab">4</div>
+        <div class="tab">5</div>
+        <div class="tab">6</div>
+        <div class="tab">7</div>
+        <div class="tab">9</div>
+        <div class="tab">10</div>
+        <div class="tab">11</div>
+        <div class="tab">12</div>
+        
+    </div>
+    </div>
+    <script>
+//        generate random color
+        var colors = ['#caa9ce', '#a9ceb5', '#b1a9ce', '#afc7ea', '#eac7de'];
+        var random_color = colors[Math.floor(Math.random() * colors.length)];
+        document.getElementById('title').style.color = random_color;
+    </script>
+</body>

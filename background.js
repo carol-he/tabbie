@@ -42,7 +42,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
                 + currentdate.getSeconds();
   //if statement for each possible 'saves'
   if(info.menuItemId === "all"){
-    chrome.tabs.query({ currentWindow: true, active: false }, function (tabs) {
+    chrome.tabs.query({ currentWindow: true }, function (tabs) {
       let ids = [];
       let closed = [];
       for(let i = 0; i < tabs.length; i++){
