@@ -18,24 +18,39 @@ function loadTabs() {
     if(items.tabGroups){
       //prints group
       console.log(items.tabGroups.length);
+      //loop through all tabs??
       for(let i = 0; i < items.tabGroups.length; i++){
-        let date = document.createElement('h2');
-        date.textContent = items.tabGroups[i].dateTime;
-        console.log("testt");
-        document.body.appendChild(date);
+        let group = document.createElement('div');
+        let groupName = document.createElement('div');
+        group.className = "tabGroup";
+        groupName.textContent = items.tabGroups[i].dateTime;
+        let groupNum = "group" + i;
+        group.id = groupNum;
+        document.body.querySelector("#list").appendChild(group).appendChild(groupName);
         //print tabs in a group
         for(let j = 0; j < items.tabGroups[i].tabGroup.length; j++){
-          let tab = document.createElement('a');
+          let tab = document.createElement('div');
+          //the title div of the tab in tab
+          let ttitle = document.createElement('div');
+          //favicon part of the tab
+          let tabFavicon = document.createElement('div');
+          tab.className = 'tab';
+          ttitle.className = 'title';
+          tabFavicon.className = 'favicon';
+          console.log("faviconUrl: ", items.tabGroups[i].tabGroup[j].favIconUrl);
+          tabFavicon.style.backgroundImage = 'url(' + items.tabGroups[i].tabGroup[j].favIconUrl + ')';
           var linkText = document.createTextNode(items.tabGroups[i].tabGroup[j].title);
-          tab.appendChild(linkText);
-          tab.title = items.tabGroups[i].tabGroup[j].title;
+          ttitle.title = items.tabGroups[i].tabGroup[j].title;
+          ttitle.textContent = ttitle.title;
           tab.href = items.tabGroups[i].tabGroup[j].url;
           tab.groupid = i;
-          console.log('id: ', tab.id);
           tab.id = items.tabGroups[i].tabGroup[j].id;
+          console.log('id: ', tab.id);
           tab.className = "tab";
+          tab.appendChild(ttitle);
+          tab.appendChild(tabFavicon);
           tab.addEventListener('click', openTab);
-          document.body.appendChild(tab);
+          document.body.querySelector("#" + groupNum).appendChild(tab);
           document.body.appendChild(document.createElement("br"));
         }
         document.body.appendChild(document.createElement("br"));
