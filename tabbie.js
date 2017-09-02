@@ -12,12 +12,13 @@ function stored() {
 //    alert("Hello World")
 // }
 function loadTabs() {
+  //all items in an array
   storage.get(null, function(items) {
     console.log("FROM ALL: ", items);
-    console.log(items.tabGroups);
+    console.log("all items in tabgroups: ", items.tabGroups);
     if(items.tabGroups){
       //prints group
-      console.log(items.tabGroups.length);
+      console.log("number of tabgroups: ", items.tabGroups.length);
       //loop through all tabs??
       for(let i = 0; i < items.tabGroups.length; i++){
         let group = document.createElement('div');
@@ -60,20 +61,22 @@ function loadTabs() {
 }
 
 function openTab(evt) {
-  event.preventDefault();
-  chrome.tabs.create({}, function(tab){
+  let tabObject = evt.target.closest('.tab');
+  console.log(tabObject.href);
+  let urlString = tabObject.href;
+  let number = -2;
+  chrome.tabs.create({'url': urlString}, function(tab){
 
   });
   console.log('evt.target', evt.target);
   //get the group
   //remove one in the group
-  // storage.remove(null, function(items){
-  //
+
+  // //remove an entire group
+  // storage.remove(tabObject.id, function(err){
+  //   console.log("err: ", err);
   // });
-  //remove on client
-  $(function() {
-      $(evt.target).empty();
-  });
+  tabObject.style = "display:none";
 }
 
 function saveAll(){
