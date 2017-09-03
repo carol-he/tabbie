@@ -45,25 +45,36 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     chrome.tabs.query({ currentWindow: true }, function (tabs) {
       let ids = [];
       let closed = [];
+      let exist = 0;
       for(let i = 0; i < tabs.length; i++){
         //ensure tabbie doesn't close
         if(tabs[i].url !== chrome.extension.getURL('tabbie.html')){
           ids.push(tabs[i].id);
           closed.push(tabs[i]);
+        } else {
+          exist = 1;
         }
       }
+      if(exist == 0){
+        chrome.tabs.create({ url: chrome.extension.getURL('tabbie.html'), pinned: true });
+      }
       chrome.tabs.remove(ids, function() { });
+      chrome.tabs.reload();
+      // url = "chrome://extensions";
+      // chrome.tabs.create({ url: chrome.extension.getURL(url), active: false });
       if (closed.length > 0) {
         storage.get(null, function(items) {
           //create new object with group info
-          tabGroups = items.tabGroups;
+          //tabGroups = items.tabGroups;
           let newGroup =
           {
             'tabGroup': closed,
             'dateTime': datetime
           }
-          items.tabGroups.push(newGroup);
-          storage.set({'tabGroups': tabGroups});
+          let obj = {};
+          obj[datetime] = newGroup;
+          //items.tabGroups.push(newGroup);
+          storage.set(obj);
         });
       }
     });
@@ -80,6 +91,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         }
       }
       chrome.tabs.remove(ids, function() { });
+      chrome.tabs.reload();
       if (closed.length > 0) {
         storage.get(null, function(items) {
           //create new object with group info
@@ -89,8 +101,9 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             'tabGroup': closed,
             'dateTime': datetime
           }
-          items.tabGroups.push(newGroup);
-          storage.set({'tabGroups': tabGroups});
+          let obj = {};
+          obj[datetime] = newGroup;
+          storage.set(obj);
         });
       }
     });
@@ -108,8 +121,9 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             'tabGroup': closed,
             'dateTime': datetime
           }
-          items.tabGroups.push(newGroup);
-          storage.set({'tabGroups': tabGroups});
+          let obj = {};
+          obj[datetime] = newGroup;
+          storage.set(obj);
         });
       }
     });
@@ -138,8 +152,9 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             'tabGroup': closed,
             'dateTime': datetime
           }
-          items.tabGroups.push(newGroup);
-          storage.set({'tabGroups': tabGroups});
+          let obj = {};
+          obj[datetime] = newGroup;
+          storage.set(obj);;
         });
       }
     });

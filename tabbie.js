@@ -15,43 +15,52 @@ function loadTabs() {
   //all items in an array
   storage.get(null, function(items) {
     console.log("FROM ALL: ", items);
-    console.log("all items in tabgroups: ", items.tabGroups);
-    if(items.tabGroups){
+    console.log("all items in tabgroups: ", items);
+    if(items){
       //prints group
-      console.log("number of tabgroups: ", items.tabGroups.length);
-      //loop through all tabs??
-      for(let i = 0; i < items.tabGroups.length; i++){
+      console.log("number of tabgroups: ", items.length);
+      //loop through all tabgroups
+      let arr = [];
+      for(var date in items){
+        arr.push(date);
+      }
+      for(let i = arr.length-1; i >= 0; i--){
+        let date = arr[i];
         let group = document.createElement('div');
         let groupName = document.createElement('div');
         group.className = "tabGroup";
-        groupName.textContent = items.tabGroups[i].dateTime;
-        let groupNum = "group" + i;
-        group.id = groupNum;
+        groupName.textContent = date;
         document.body.querySelector("#list").appendChild(group).appendChild(groupName);
         //print tabs in a group
-        for(let j = 0; j < items.tabGroups[i].tabGroup.length; j++){
+        console.log(date);
+        let tabGroup = items[date].tabGroup;
+        console.log(tabGroup);
+        for(let j = 0; j < tabGroup.length; j++){
           let tab = document.createElement('div');
           //the title div of the tab in tab
-          let ttitle = document.createElement('div');
+          let title = document.createElement('div');
           //favicon part of the tab
           let tabFavicon = document.createElement('div');
           tab.className = 'tab';
-          ttitle.className = 'title';
+          title.className = 'title';
           tabFavicon.className = 'favicon';
-          console.log("faviconUrl: ", items.tabGroups[i].tabGroup[j].favIconUrl);
-          tabFavicon.style.backgroundImage = 'url(' + items.tabGroups[i].tabGroup[j].favIconUrl + ')';
-          var linkText = document.createTextNode(items.tabGroups[i].tabGroup[j].title);
-          ttitle.title = items.tabGroups[i].tabGroup[j].title;
-          ttitle.textContent = ttitle.title;
-          tab.href = items.tabGroups[i].tabGroup[j].url;
-          tab.groupid = i;
-          tab.id = items.tabGroups[i].tabGroup[j].id;
+          console.log("faviconUrl: ", tabGroup[j].favIconUrl);
+          tabFavicon.style.backgroundImage = 'url(' + tabGroup[j].favIconUrl + ')';
+          var linkText = document.createTextNode(tabGroup[j].title);
+          title.title = tabGroup[j].title;
+          title.textContent = title.title;
+          tab.href = tabGroup[j].url;
+          tab.id = tabGroup[j].id;
           console.log('id: ', tab.id);
           tab.className = "tab";
-          tab.appendChild(ttitle);
+          tab.appendChild(title);
           tab.appendChild(tabFavicon);
-          tab.addEventListener('click', openTab);
-          document.body.querySelector("#" + groupNum).appendChild(tab);
+          let data = {};
+          data.date = date;
+          data.url = tab.href;
+          console.log(data);
+          tab.addEventListener('click', openTab(data));
+          document.body.querySelector('.tabGroup:last-child').appendChild(tab);
           document.body.appendChild(document.createElement("br"));
         }
         document.body.appendChild(document.createElement("br"));
@@ -60,23 +69,51 @@ function loadTabs() {
   });
 }
 
-function openTab(evt) {
-  let tabObject = evt.target.closest('.tab');
-  console.log(tabObject.href);
-  let urlString = tabObject.href;
-  let number = -2;
-  chrome.tabs.create({'url': urlString}, function(tab){
-
-  });
-  console.log('evt.target', evt.target);
-  //get the group
-  //remove one in the group
-
-  // //remove an entire group
-  // storage.remove(tabObject.id, function(err){
-  //   console.log("err: ", err);
-  // });
-  tabObject.style = "display:none";
+function openTab(data) {
+  //closure to retain data
+  return function(evt){
+    let tabObject = evt.target.closest('.tab');
+    console.log("tabobject href: ", tabObject.href);
+    let urlString = tabObject.href;
+    chrome.tabs.create({'url': urlString}, function(tab){
+      //get the group
+      //remove one in the group
+      console.log("data: ", data);
+      storage.get(data.date, function(items) {
+        let date = data.date;
+        console.log("items: ", items[date]);
+        let update = [];
+        let removed = 0;
+        for(let i = 0; i < items[date].tabGroup.length; i++){
+          console.log("cur url: ", items[date].tabGroup[i].url);
+          if(items[date].tabGroup[i].url !== urlString || removed == 1){
+            update.push(items[date].tabGroup[i]);
+            console.log("YES");
+          } else {
+            removed = 1;
+          }
+        }
+        if (update.length > 0) {
+          //create new object with group info
+          //tabGroups = items.tabGroups;
+          let newGroup =
+          {
+            'tabGroup': update,
+            'dateTime': data.date
+          }
+          let obj = {};
+          obj[data.date] = newGroup;
+          //items.tabGroups.push(newGroup);
+          storage.set(obj);
+        } else {
+          //remove group
+          storage.remove(data.date);
+        }
+      });
+    });
+    //update client side maybe reload instead
+    tabObject.style = "display:none";
+  }
 }
 
 function saveAll(){
@@ -88,7 +125,6 @@ function saveAll(){
                 + currentdate.getHours() + ":"
                 + currentdate.getMinutes() + ":"
                 + currentdate.getSeconds();
-  console.log('hi');
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
     let ids = [];
     let closed = [];
@@ -107,19 +143,21 @@ function saveAll(){
     }
     chrome.tabs.remove(ids, function() { });
     chrome.tabs.reload();
-    url = "chrome://extensions";
-    chrome.tabs.create({ url: chrome.extension.getURL(url), active: false });
+    // url = "chrome://extensions";
+    // chrome.tabs.create({ url: chrome.extension.getURL(url), active: false });
     if (closed.length > 0) {
       storage.get(null, function(items) {
         //create new object with group info
-        tabGroups = items.tabGroups;
+        //tabGroups = items.tabGroups;
         let newGroup =
         {
           'tabGroup': closed,
           'dateTime': datetime
         }
-        items.tabGroups.push(newGroup);
-        storage.set({'tabGroups': tabGroups});
+        let obj = {};
+        obj[datetime] = newGroup;
+        //items.tabGroups.push(newGroup);
+        storage.set(obj);
       });
     }
   });
