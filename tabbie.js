@@ -5,7 +5,7 @@ let storage = chrome.storage.sync;
 
 function stored() {
   storage.get(null, function(items) {
-    console.log("FROM tabbie!!: ", items);
+    ////console.log("FROM tabbie!!: ", items);
   });
 }
 // function sayHello() {
@@ -14,11 +14,11 @@ function stored() {
 function loadTabs() {
   //all items in an array
   storage.get(null, function(items) {
-    console.log("FROM ALL: ", items);
-    console.log("all items in tabgroups: ", items);
+    ////console.log("FROM ALL: ", items);
+    ////console.log("all items in tabgroups: ", items);
     if(items){
       //prints group
-      console.log("number of tabgroups: ", items.length);
+      //console.log("number of tabgroups: ", items.length);
       //loop through all tabgroups
       let arr = [];
       for(var date in items){
@@ -32,9 +32,9 @@ function loadTabs() {
         groupName.textContent = date;
         document.body.querySelector("#list").appendChild(group).appendChild(groupName);
         //print tabs in a group
-        console.log(date);
+        //console.log(date);
         let tabGroup = items[date].tabGroup;
-        console.log(tabGroup);
+        //console.log(tabGroup);
         for(let j = 0; j < tabGroup.length; j++){
           let tab = document.createElement('div');
           //the title div of the tab in tab
@@ -44,21 +44,21 @@ function loadTabs() {
           tab.className = 'tab';
           title.className = 'title';
           tabFavicon.className = 'favicon';
-          console.log("faviconUrl: ", tabGroup[j].favIconUrl);
+          //console.log("faviconUrl: ", tabGroup[j].favIconUrl);
           tabFavicon.style.backgroundImage = 'url(' + tabGroup[j].favIconUrl + ')';
           var linkText = document.createTextNode(tabGroup[j].title);
           title.title = tabGroup[j].title;
           title.textContent = title.title;
           tab.href = tabGroup[j].url;
           tab.id = tabGroup[j].id;
-          console.log('id: ', tab.id);
+          //console.log('id: ', tab.id);
           tab.className = "tab";
           tab.appendChild(title);
           tab.appendChild(tabFavicon);
           let data = {};
           data.date = date;
           data.url = tab.href;
-          console.log(data);
+          //console.log(data);
           tab.addEventListener('click', openTab(data));
           document.body.querySelector('.tabGroup:last-child').appendChild(tab);
           document.body.appendChild(document.createElement("br"));
@@ -73,22 +73,22 @@ function openTab(data) {
   //closure to retain data
   return function(evt){
     let tabObject = evt.target.closest('.tab');
-    console.log("tabobject href: ", tabObject.href);
+    //console.log("tabobject href: ", tabObject.href);
     let urlString = tabObject.href;
     chrome.tabs.create({'url': urlString}, function(tab){
       //get the group
       //remove one in the group
-      console.log("data: ", data);
+      //console.log("data: ", data);
       storage.get(data.date, function(items) {
         let date = data.date;
-        console.log("items: ", items[date]);
+        //console.log("items: ", items[date]);
         let update = [];
         let removed = 0;
         for(let i = 0; i < items[date].tabGroup.length; i++){
-          console.log("cur url: ", items[date].tabGroup[i].url);
+          //console.log("cur url: ", items[date].tabGroup[i].url);
           if(items[date].tabGroup[i].url !== urlString || removed == 1){
             update.push(items[date].tabGroup[i]);
-            console.log("YES");
+            //console.log("YES");
           } else {
             removed = 1;
           }
@@ -174,8 +174,16 @@ function savePinned(){
 
 }
 function restoreAll(){
-  event.preventDefault();
-
+  storage.get(null, function(tabs) {
+    console.log("hi ", tabs);
+    for(let x in tabs){
+      console.log("x: ", x);
+      for(let i = 0; i < tabs[x].tabGroup.length; i++){
+        //console.log("cur url: ", items[date].tabGroup[i].url);
+        chrome.tabs.create({ url:tabs[x].tabGroup[i].url });
+      }
+    }
+  });
 }
 
 function main(){
