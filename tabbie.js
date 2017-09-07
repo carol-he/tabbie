@@ -28,9 +28,12 @@ function loadTabs() {
         let date = arr[i];
         let group = document.createElement('div');
         let groupName = document.createElement('div');
+        let groupRestore = document.createElement('a');
         group.className = "tabGroup";
         groupName.textContent = date;
+        groupRestore.textContent = 'restore this group'
         document.body.querySelector("#list").appendChild(group).appendChild(groupName);
+        document.getElementById(date).appendChild(groupRestore);
         //print tabs in a group
         //console.log(date);
         let tabGroup = items[date].tabGroup;
@@ -172,6 +175,18 @@ function savePinned(){
                 + currentdate.getSeconds();
   event.preventDefault();
 
+}
+function restoreGroup(group){
+  storage.get(group, function(tabs) {
+    console.log("hi ", tabs);
+    for(let x in tabs){
+      console.log("x: ", x);
+      for(let i = 0; i < tabs[x].tabGroup.length; i++){
+        //console.log("cur url: ", items[date].tabGroup[i].url);
+        chrome.tabs.create({ url:tabs[x].tabGroup[i].url });
+      }
+    }
+  });
 }
 function restoreAll(){
   storage.get(null, function(tabs) {
