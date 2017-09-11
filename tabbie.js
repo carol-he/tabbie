@@ -28,16 +28,16 @@ function loadTabs() {
         let date = arr[i];
         let group = document.createElement('div');
         let groupName = document.createElement('div');
-        let groupRestore = document.createElement('a');
+        let groupRestore = document.createElement('div');
         group.className = "tabGroup";
         groupName.textContent = date;
-        groupRestore.textContent = 'restore this group'
-        document.body.querySelector("#list").appendChild(group).appendChild(groupName);
-        document.getElementById(date).appendChild(groupRestore);
+        groupRestore.innerHTML = '<a href="">restore this group</a>';
+        groupRestore.addEventListener('click', restoreGroup(date));
+        document.body.querySelector("#list").appendChild(group).appendChild(groupName).appendChild(groupRestore);
         //print tabs in a group
         //console.log(date);
         let tabGroup = items[date].tabGroup;
-        //console.log(tabGroup);
+        console.log(tabGroup);
         for(let j = 0; j < tabGroup.length; j++){
           let tab = document.createElement('div');
           //the title div of the tab in tab
@@ -70,6 +70,28 @@ function loadTabs() {
       }
     }
   });
+}
+
+function restoreGroup(group){
+  return function(event){
+    event.preventDefault();
+    console.log("test");
+    storage.get(group, function(tabs) {
+      console.log("hi ", tabs);
+      for(let x in tabs){
+        console.log("x: ", x);
+        for(let i = 0; i < tabs[x].tabGroup.length; i++){
+          //console.log("cur url: ", items[date].tabGroup[i].url);
+          chrome.tabs.create({ url:tabs[x].tabGroup[i].url });
+        }
+        chrome.storage.sync.remove(group);
+        chrome.tabs.query({url: chrome.extension.getURL('tabbie.html')}, function(x){
+          console.log("tab:", x);
+          chrome.tabs.reload();
+        });
+      }
+    });
+  }
 }
 
 function openTab(data) {
@@ -176,18 +198,7 @@ function savePinned(){
   event.preventDefault();
 
 }
-function restoreGroup(group){
-  storage.get(group, function(tabs) {
-    console.log("hi ", tabs);
-    for(let x in tabs){
-      console.log("x: ", x);
-      for(let i = 0; i < tabs[x].tabGroup.length; i++){
-        //console.log("cur url: ", items[date].tabGroup[i].url);
-        chrome.tabs.create({ url:tabs[x].tabGroup[i].url });
-      }
-    }
-  });
-}
+
 function restoreAll(){
   storage.get(null, function(tabs) {
     console.log("hi ", tabs);
@@ -199,6 +210,7 @@ function restoreAll(){
       }
     }
   });
+  chrome.storage.sync.clear();
 }
 
 function main(){
