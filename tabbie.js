@@ -2,6 +2,7 @@
 This file actually manages the tabs
 */
 let storage = chrome.storage.sync;
+// const getDateString = require('tabhelper.js').getDateString;
 
 function stored() {
   storage.get(null, function(items) {
@@ -35,8 +36,10 @@ function loadTabs() {
         groupName.className = "groupName";
         groupName.innerHTML = '<h3>' + date + '</h3>';
         groupRestore.className = "restore";
+        groupRestore.title = "restore this group";
         groupRestore.addEventListener('click', restoreGroup(date));
         groupDelete.className = "delete";
+        groupDelete.title = "delete this group";
         groupDelete.addEventListener('click', deleteGroup(date));
         infoBar.className = "infoBar";
         infoBar.appendChild(groupName);
@@ -60,6 +63,7 @@ function loadTabs() {
           tabFavicon.style.backgroundImage = 'url(' + tabGroup[j].favIconUrl + ')';
           var linkText = document.createTextNode(tabGroup[j].title);
           title.title = tabGroup[j].title;
+          tab.title = tabGroup[j].title;
           title.innerHTML = '<h3>' + title.title + '</h3>';
           tab.href = tabGroup[j].url;
           tab.id = tabGroup[j].id;
@@ -171,13 +175,7 @@ function openTab(data) {
 
 function saveAll(){
   event.preventDefault();
-  var currentdate = new Date();
-  var datetime = (currentdate.getMonth()+1) + "/"
-                + currentdate.getDate()  + "/"
-                + currentdate.getFullYear() + " @ "
-                + currentdate.getHours() + ":"
-                + currentdate.getMinutes() + ":"
-                + currentdate.getSeconds();
+  const datetime = getDateString();
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
     let ids = [];
     let closed = [];
@@ -216,14 +214,44 @@ function saveAll(){
   });
 }
 function savePinned(){
-  var currentdate = new Date();
-  var datetime = (currentdate.getMonth()+1) + "/"
-                + currentdate.getDate()  + "/"
-                + currentdate.getFullYear() + " @ "
-                + currentdate.getHours() + ":"
-                + currentdate.getMinutes() + ":"
-                + currentdate.getSeconds();
+  const datetime = getDateString();
   event.preventDefault();
+  chrome.tabs.query({ currentWindow: true, pinned: true}, function (tabs) {
+    let ids = [];
+    let closed = [];
+    let exist = 0;
+    for(let i = 0; i < tabs.length; i++){
+      //ensure tabbie doesn't close
+      if(tabs[i].url !== chrome.extension.getURL('tabbie.html')){
+        ids.push(tabs[i].id);
+        closed.push(tabs[i]);
+      } else {
+        exist = 1;
+      }
+    }
+    if(exist == 0){
+      chrome.tabs.create({ url: chrome.extension.getURL('tabbie.html'), pinned: true });
+    }
+    chrome.tabs.remove(ids, function() { });
+    chrome.tabs.reload();
+    // url = "chrome://extensions";
+    // chrome.tabs.create({ url: chrome.extension.getURL(url), active: false });
+    if (closed.length > 0) {
+      storage.get(null, function(items) {
+        //create new object with group info
+        //tabGroups = items.tabGroups;
+        let newGroup =
+        {
+          'tabGroup': closed,
+          'dateTime': datetime
+        }
+        let obj = {};
+        obj[datetime] = newGroup;
+        //items.tabGroups.push(newGroup);
+        storage.set(obj);
+      });
+    }
+  });
 
 }
 
@@ -241,6 +269,25 @@ function restoreAll(){
   chrome.storage.sync.clear();
 }
 
+function getDateString(){
+  var currentdate = new Date();
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  let ext = "am";
+  let hour = currentdate.getHours();
+  if(parseInt(currentdate.getHours()) > 12){
+    ext = "pm";
+    hour = currentdate.getHours() - 12;
+  }
+  var datetime = months[currentdate.getMonth()] + " "
+                + currentdate.getDate()  + ", "
+                + currentdate.getFullYear() + " at "
+                + hour + ":"
+                + currentdate.getMinutes()
+                + " " + ext;
+                // + ":" + currentdate.getSeconds();
+  return datetime;
+}
+
 function main(){
   loadTabs();
   document.querySelector('#saveall').addEventListener('click', saveAll);
@@ -249,10 +296,3 @@ function main(){
 }
 
 document.addEventListener('DOMContentLoaded', main);
-
-
-/* [x] TODO: Learn how to put stuff from js into html (possibly use hbs?) */
-/* [x] TODO: display tab groups */
-/* [ ] TODO: allow person to restore all tabs*/
-/* [ ] TODO: allow person to restore one tab*/
-/* [ ] TODO: allow person to restore a tab group*/
