@@ -3,7 +3,10 @@ body {
   /*font-family: 'Helvetica Rounded', 'Arial Rounded MT Bold','Montserrat', sans-serif;*/
   color: #fff;
 }
-
+#heading {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+}
 .toggleWrapper {
   position: absolute;
   top: 30px;

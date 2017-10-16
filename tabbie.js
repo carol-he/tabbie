@@ -29,11 +29,20 @@ function loadTabs() {
         let group = document.createElement('div');
         let groupName = document.createElement('div');
         let groupRestore = document.createElement('div');
+        let groupDelete = document.createElement('div');
+        let infoBar = document.createElement('div');
         group.className = "tabGroup";
-        groupName.textContent = date;
-        groupRestore.innerHTML = '<a href="">restore this group</a>';
+        groupName.className = "groupName";
+        groupName.innerHTML = '<h3>' + date + '</h3>';
+        groupRestore.className = "restore";
         groupRestore.addEventListener('click', restoreGroup(date));
-        document.body.querySelector("#list").appendChild(group).appendChild(groupName).appendChild(groupRestore);
+        groupDelete.className = "delete";
+        groupDelete.addEventListener('click', deleteGroup(date));
+        infoBar.className = "infoBar";
+        infoBar.appendChild(groupName);
+        infoBar.appendChild(groupRestore);
+        infoBar.appendChild(groupDelete);
+        document.body.querySelector("#list").appendChild(group).appendChild(infoBar);
         //print tabs in a group
         //console.log(date);
         let tabGroup = items[date].tabGroup;
@@ -51,7 +60,7 @@ function loadTabs() {
           tabFavicon.style.backgroundImage = 'url(' + tabGroup[j].favIconUrl + ')';
           var linkText = document.createTextNode(tabGroup[j].title);
           title.title = tabGroup[j].title;
-          title.textContent = title.title;
+          title.innerHTML = '<h3>' + title.title + '</h3>';
           tab.href = tabGroup[j].url;
           tab.id = tabGroup[j].id;
           //console.log('id: ', tab.id);
@@ -72,6 +81,25 @@ function loadTabs() {
   });
 }
 
+function deleteGroup(group){
+  return function(event){
+    event.preventDefault();
+    if (confirm("Are you sure you want to delete this group of tabs?") == true) {
+      storage.get(group, function(tabs) {
+        console.log("hi ", tabs);
+        for(let x in tabs){
+          console.log("x: ", x);
+          chrome.storage.sync.remove(group);
+          // chrome.tabs.query({url: chrome.extension.getURL('tabbie.html')}, function(x){
+          //   console.log(x);
+          // });
+        }
+      });
+      tabGroup.style = "display:none";
+    }
+  }
+}
+
 function restoreGroup(group){
   return function(event){
     event.preventDefault();
@@ -85,12 +113,12 @@ function restoreGroup(group){
           chrome.tabs.create({ url:tabs[x].tabGroup[i].url });
         }
         chrome.storage.sync.remove(group);
-        chrome.tabs.query({url: chrome.extension.getURL('tabbie.html')}, function(x){
-          console.log("tab:", x);
-          chrome.tabs.reload();
-        });
+        // chrome.tabs.query({url: chrome.extension.getURL('tabbie.html')}, function(x){
+        //   console.log(x);
+        // });
       }
     });
+    tabGroup.style = "display:none";
   }
 }
 
