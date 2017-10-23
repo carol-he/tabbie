@@ -1,0 +1,22 @@
+{
+  "name": "tabbie",
+  "version": "1.0.0",
+  "description": "Chrome extension for organizing tabs",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carol-he/tabbie.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carol-he/tabbie/issues"
+  },
+  "homepage": "https://github.com/carol-he/tabbie#readme"
+}
