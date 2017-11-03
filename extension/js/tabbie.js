@@ -292,7 +292,7 @@ function getDateString(){
                 + currentdate.getFullYear() + " at "
                 + hour + ":"
                 + minute + ":"
-                + seconds + " " + ext;
+                + second + " " + ext;
                 // + ":" + currentdate.getSeconds();
   return datetime;
 }
